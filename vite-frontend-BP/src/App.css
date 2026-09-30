@@ -1,6 +1,19 @@
+/* Blue-black page with a faint graph-paper grid: fine lines every 24px, heavier every 120px */
 body {
-  background-color: pink;
   margin: 0;
+  color-scheme: dark;
+  background-color: #0a0e17;
+  background-image:
+    linear-gradient(rgba(41, 98, 255, 0.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(41, 98, 255, 0.10) 1px, transparent 1px),
+    linear-gradient(rgba(41, 98, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(41, 98, 255, 0.04) 1px, transparent 1px);
+  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+  background-attachment: fixed;
+}
+
+#root {
+  border-inline: none;
 }
 
 .counter {
@@ -186,4 +199,330 @@ body {
     right: 0;
     border-right-color: var(--border);
   }
+}
+
+/* TradingView-style chart panel */
+.tv-panel {
+  box-sizing: border-box;
+  width: calc(100% - 32px);
+  max-width: 1600px;
+  margin: 24px auto;
+  background: #131722;
+  border: 1px solid #2a2e39;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  color: #d1d4dc;
+  font-family: -apple-system, BlinkMacSystemFont, "Trebuchet MS", Roboto, Ubuntu, sans-serif;
+}
+
+.tv-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  border-bottom: 1px solid #2a2e39;
+}
+
+.tv-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.tv-divider {
+  width: 1px;
+  height: 20px;
+  margin: 0 6px;
+  background: #2a2e39;
+}
+
+.tv-button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #b2b5be;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tv-button:hover {
+  background: #2a2e39;
+  color: #d1d4dc;
+}
+
+.tv-button.active {
+  color: #2962ff;
+}
+
+.tv-chart {
+  position: relative;
+  height: 100%;
+}
+
+.tv-chart-canvas {
+  height: 100%;
+}
+
+/* Resizable chart + editor workspace */
+.workspace {
+  display: flex;
+}
+
+.workspace-separator {
+  flex: 0 0 auto;
+  background: #2a2e39;
+  transition: background 0.15s;
+}
+
+.workspace-separator.horizontal {
+  width: 4px;
+  cursor: col-resize;
+}
+
+.workspace-separator.vertical {
+  height: 4px;
+  cursor: row-resize;
+}
+
+.workspace-separator:hover,
+.workspace-separator:focus-visible,
+.workspace-separator[data-separator="active"] {
+  background: #2962ff;
+  outline: none;
+}
+
+.workspace-height-handle {
+  height: 8px;
+  border-top: 1px solid #2a2e39;
+  cursor: row-resize;
+  touch-action: none;
+  background: #131722;
+  transition: background 0.15s;
+}
+
+.workspace-height-handle:hover,
+.workspace-height-handle:focus-visible {
+  background: #2962ff;
+  outline: none;
+}
+
+.code-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #131722;
+}
+
+.code-editor-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px 5px 12px;
+  border-bottom: 1px solid #2a2e39;
+  background: #131722;
+  font-size: 12px;
+}
+
+.code-editor-tab {
+  flex: 0 0 auto;
+  color: #b2b5be;
+}
+
+.code-editor-dirty {
+  margin-left: 6px;
+  color: #b2b5be;
+  font-size: 10px;
+}
+
+.code-editor-status {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+  color: #787b86;
+}
+
+.code-editor-status.error {
+  color: #ef5350;
+}
+
+.code-editor-button {
+  flex: 0 0 auto;
+  padding: 4px 12px;
+  border: 1px solid #363a45;
+  border-radius: 4px;
+  background: transparent;
+  color: #d1d4dc;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.code-editor-button:hover:not(:disabled) {
+  background: #2a2e39;
+}
+
+.code-editor-button.primary {
+  border-color: #2962ff;
+  background: #2962ff;
+  color: #fff;
+}
+
+.code-editor-button.primary:hover:not(:disabled) {
+  background: #1e53e5;
+}
+
+.code-editor-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.code-editor-body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.code-editor-loading {
+  padding: 16px;
+  color: #787b86;
+  font-size: 13px;
+}
+
+.tv-legend {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  right: 72px; /* stay clear of the price scale; wrap when the chart is narrow */
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.tv-legend-symbol {
+  font-weight: 700;
+  color: #d1d4dc;
+}
+
+.tv-legend b {
+  font-weight: 500;
+}
+
+
+.tv-account {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  font-size: 13px;
+  color: #b2b5be;
+}
+
+/* Login page: plain white */
+body:has(.auth-page) {
+  color-scheme: light;
+  background: #fff;
+}
+
+.auth-page {
+  display: flex;
+  justify-content: center;
+  padding: 80px 16px;
+}
+
+.auth-card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+  color: #111;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.auth-card h1 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #111;
+}
+
+.auth-card p {
+  margin: 0;
+}
+
+.auth-card label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  color: #333;
+}
+
+.auth-card input {
+  padding: 10px 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  background: #fff;
+  color: #111;
+  font: inherit;
+  font-size: 15px;
+}
+
+.auth-card input:focus {
+  outline: 2px solid #111;
+  outline-offset: -1px;
+  border-color: #111;
+}
+
+.auth-muted {
+  font-size: 14px;
+  color: #666;
+}
+
+.auth-error {
+  font-size: 14px;
+  color: #c62828;
+}
+
+.auth-submit {
+  padding: 11px;
+  border: none;
+  border-radius: 6px;
+  background: #111;
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.auth-link {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #111;
+  font: inherit;
+  font-size: 14px;
+  text-decoration: underline;
+  cursor: pointer;
 }
