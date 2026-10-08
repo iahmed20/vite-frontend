@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import './App.css'
 import Workspace from './Workspace';
 import Login from './Login';
+import AccountBalance from './AccountBalance';
+import CompetitionPanel from './CompetitionPanel';
+import { RoundsProvider, formatCountdown, toDate, useRounds, useServerNow } from './rounds';
 import api from './api';
 
 const SYMBOLS = ["MEOW", "NEKO", "PAWS", "TUNA", "YARN"];
@@ -62,7 +65,29 @@ function App() {
     );
   }
 
-  return <Dashboard account={session.account} onSignOut={handleSignOut} />;
+  return (
+    <RoundsProvider>
+      <Dashboard account={session.account} onSignOut={handleSignOut} />
+    </RoundsProvider>
+  );
+}
+
+// Toolbar countdown for the live (or next) round; clicking it jumps to the leaderboard
+function RoundChip() {
+  const { rounds } = useRounds();
+  const now = useServerNow();
+  const round = rounds?.active ?? rounds?.upcoming;
+  if (!round) return null;
+
+  const live = round.status === 'ACTIVE';
+  const ms = toDate(live ? round.endsAt : round.startsAt).getTime() - now;
+  const scrollToBoard = () => document.querySelector('.competition')?.scrollIntoView({ behavior: 'smooth' });
+
+  return (
+    <button className={live ? 'tv-button round-chip live' : 'tv-button round-chip'} onClick={scrollToBoard} title="Show the leaderboard">
+      {live ? `Round #${round.roundId} · ${formatCountdown(ms)} left` : `Round #${round.roundId} starts in ${formatCountdown(ms)}`}
+    </button>
+  );
 }
 
 function Dashboard({ account, onSignOut }) {
@@ -95,13 +120,17 @@ function Dashboard({ account, onSignOut }) {
             </button>
           ))}
         </div>
+        <div className="tv-divider" />
+        <RoundChip />
         <div className="tv-account">
+          <AccountBalance accountId={account.accountId} />
           <span title={account.email}>{account.ownerName}</span>
           <button className="tv-button" onClick={onSignOut}>Sign out</button>
         </div>
       </div>
 
       <Workspace symbol={selectedSymbol} intervalSeconds={intervalSeconds} accountId={account.accountId} />
+      <CompetitionPanel />
     </div>
   );
 }
