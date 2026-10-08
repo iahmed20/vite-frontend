@@ -526,3 +526,453 @@ body:has(.auth-page) {
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* Cash balance and deposit dropdown in the toolbar */
+.balance {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 8px;
+}
+
+.balance-cash {
+  color: #d1d4dc;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.balance-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 10;
+  width: 260px;
+  padding: 12px;
+  border: 1px solid #2a2e39;
+  border-radius: 6px;
+  background: #1e222d;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.balance-label {
+  display: block;
+  margin-bottom: 4px;
+  color: #787b86;
+  font-size: 12px;
+}
+
+.balance-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.balance-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid #363a45;
+  border-radius: 4px;
+  background: #131722;
+  color: #d1d4dc;
+  font: inherit;
+  font-size: 13px;
+}
+
+.balance-input:focus {
+  outline: none;
+  border-color: #2962ff;
+}
+
+.balance-chip {
+  flex: 1 1 0;
+  padding: 3px 0;
+  border: 1px solid #363a45;
+  border-radius: 4px;
+  background: transparent;
+  color: #b2b5be;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.balance-chip:hover:not(:disabled) {
+  background: #2a2e39;
+  color: #d1d4dc;
+}
+
+.balance-chip:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.balance-message {
+  margin-bottom: 8px;
+  color: #26a69a;
+  font-size: 12px;
+}
+
+.balance-message.error {
+  color: #ef5350;
+}
+
+.balance-summary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid #2a2e39;
+  font-size: 12px;
+}
+
+.balance-summary dt {
+  color: #787b86;
+}
+
+.balance-summary dd {
+  margin: 0;
+  text-align: right;
+  color: #d1d4dc;
+  font-variant-numeric: tabular-nums;
+}
+
+.balance-position {
+  display: contents;
+}
+
+/* Run panel under the strategy editor: live status and output of the latest submission */
+.run-panel {
+  flex: 0 0 200px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-top: 1px solid #2a2e39;
+  background: #131722;
+  font-size: 12px;
+}
+
+.run-panel.collapsed {
+  flex-basis: auto;
+}
+
+.run-panel-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+}
+
+.run-panel-toggle {
+  padding: 0 4px;
+  border: none;
+  background: transparent;
+  color: #787b86;
+  font: inherit;
+  cursor: pointer;
+}
+
+.run-panel-toggle:hover {
+  color: #d1d4dc;
+}
+
+.run-panel-meta {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #787b86;
+  font-variant-numeric: tabular-nums;
+}
+
+.run-status {
+  --run-color: #787b86;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--run-color) 15%, transparent);
+  color: var(--run-color);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.run-status.queued { --run-color: #f0b90b; }
+.run-status.running { --run-color: #26a69a; }
+.run-status.failed { --run-color: #ef5350; }
+
+.run-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--run-color);
+}
+
+.run-status.queued .run-status-dot,
+.run-status.running .run-status-dot {
+  animation: run-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes run-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 color-mix(in srgb, var(--run-color) 60%, transparent); }
+  50% { opacity: 0.6; box-shadow: 0 0 0 4px transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .run-status-dot { animation: none !important; }
+}
+
+.run-panel-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.run-error {
+  flex: 0 0 auto;
+  max-height: 40%;
+  overflow: auto;
+  margin: 0 8px 6px;
+  padding: 6px 8px;
+  border-left: 2px solid #787b86;
+  background: #1e222d;
+  color: #b2b5be;
+  font-family: Menlo, Monaco, Consolas, monospace;
+  white-space: pre-wrap;
+}
+
+.run-error.failed {
+  border-left-color: #ef5350;
+  color: #ef9a9a;
+}
+
+.run-log {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  margin: 0;
+  padding: 6px 12px 8px;
+  color: #d1d4dc;
+  font-family: Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.run-hint {
+  color: #787b86;
+  font-family: -apple-system, BlinkMacSystemFont, "Trebuchet MS", Roboto, Ubuntu, sans-serif;
+}
+
+/* One-off blink each time the bot handles a tick */
+.run-status.ticked {
+  animation: run-tick 0.8s ease-out;
+}
+
+@keyframes run-tick {
+  0% { background: color-mix(in srgb, var(--run-color) 55%, transparent); }
+  100% { background: color-mix(in srgb, var(--run-color) 15%, transparent); }
+}
+
+.run-stale {
+  color: #f0b90b;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .run-status.ticked { animation: none; }
+}
+
+/* Toolbar countdown for the current round */
+.round-chip {
+  font-variant-numeric: tabular-nums;
+}
+
+.round-chip.live {
+  color: #26a69a;
+}
+
+/* "Run in" target picker next to Submit */
+.run-target {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #787b86;
+}
+
+.run-target select {
+  padding: 3px 6px;
+  border: 1px solid #363a45;
+  border-radius: 4px;
+  background: #131722;
+  color: #d1d4dc;
+  font: inherit;
+  font-size: 12px;
+}
+
+/* Competition rounds and leaderboard, under the workspace */
+.competition {
+  border-top: 1px solid #2a2e39;
+  padding: 0 0 12px;
+  color: #d1d4dc;
+  font-size: 13px;
+}
+
+.competition-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #2a2e39;
+}
+
+.competition-title {
+  font-weight: 600;
+}
+
+.round-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  padding: 10px 12px 0;
+}
+
+.round-badge {
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: #2a2e39;
+  color: #b2b5be;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.round-badge.active {
+  background: color-mix(in srgb, #26a69a 18%, transparent);
+  color: #26a69a;
+}
+
+.round-title {
+  font-weight: 600;
+}
+
+.round-meta {
+  color: #787b86;
+  font-variant-numeric: tabular-nums;
+}
+
+.round-joined {
+  color: #26a69a;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.round-error {
+  flex-basis: 100%;
+  color: #ef5350;
+  font-size: 12px;
+}
+
+.round-empty {
+  padding: 12px;
+  color: #787b86;
+}
+
+.leaderboard {
+  padding: 12px 12px 0;
+}
+
+.leaderboard-title {
+  margin-bottom: 6px;
+  color: #787b86;
+  font-size: 12px;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.leaderboard-table th {
+  padding: 4px 8px;
+  border-bottom: 1px solid #2a2e39;
+  color: #787b86;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: left;
+}
+
+.leaderboard-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #1e222d;
+}
+
+.leaderboard-table .num {
+  text-align: right;
+}
+
+.leaderboard-table .rank {
+  width: 2.5em;
+}
+
+.leaderboard-table tr.you td {
+  background: color-mix(in srgb, #2962ff 12%, transparent);
+}
+
+.you-tag {
+  margin-left: 6px;
+  padding: 0 5px;
+  border-radius: 3px;
+  background: #2962ff;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.leaderboard-table .bot {
+  color: #787b86;
+}
+
+.leaderboard-table .bot.running {
+  color: #26a69a;
+}
+
+.leaderboard-table .bot.failed {
+  color: #ef5350;
+}
+
+.leaderboard-table .up {
+  color: #26a69a;
+}
+
+.leaderboard-table .down {
+  color: #ef5350;
+}
+
+.round-you {
+  margin-top: 8px;
+  color: #b2b5be;
+  font-size: 12px;
+}
+
+.competition-help {
+  margin: 12px 12px 0;
+  color: #787b86;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+  .leaderboard {
+    overflow-x: auto;
+  }
+}

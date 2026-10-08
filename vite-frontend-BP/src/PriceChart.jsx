@@ -13,7 +13,9 @@ const DOWN = '#ef5350';
 function toCandles(ticks, bucketSeconds) {
   const candles = [];
   for (const tick of ticks) {
-    const seconds = Math.floor(new Date(tick.timestamp + "Z").getTime() / 1000);
+    // Timestamps are UTC; older API versions sent them without a zone suffix
+    const iso = /(Z|[+-]\d\d:\d\d)$/i.test(tick.timestamp) ? tick.timestamp : tick.timestamp + "Z";
+    const seconds = Math.floor(new Date(iso).getTime() / 1000);
     const time = seconds - (seconds % bucketSeconds);
     const last = candles[candles.length - 1];
 

@@ -3,6 +3,8 @@ import EditorWorker from 'monaco-editor/editor/editor.worker.js?worker';
 import Editor, { loader } from '@monaco-editor/react';
 import { useEffect, useRef, useState } from 'react';
 import api from './api';
+import SubmissionPanel from './SubmissionPanel';
+import { joinableTargets, useRounds } from './rounds';
 
 // Use the bundled monaco-editor package instead of @monaco-editor/react's default CDN download
 self.MonacoEnvironment = { getWorker: () => new EditorWorker() };
@@ -47,17 +49,26 @@ function defineTheme(monacoInstance) {
 const errorMessage = (err) =>
   typeof err.response?.data === 'string' ? err.response.data : 'Request failed. Please try again.';
 
-// Backend timestamps are UTC without a zone suffix
+// Backend timestamps are UTC; older API versions sent them without a zone suffix
 const formatTime = (utc) =>
-  new Date(utc.endsWith('Z') ? utc : utc + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-const submissionMessage = (sub) =>
-  `Submission #${sub.strategySubmissionId} (v${sub.strategyVersion}) ${sub.status.toLowerCase()} · ${formatTime(sub.submittedAt)}`;
+  new Date(/(Z|[+-]\d\d:\d\d)$/i.test(utc) ? utc : utc + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
 function CodeEditor({ accountId }) {
   const [initialCode, setInitialCode] = useState(null); // null until the saved strategy is fetched
   const [dirty, setDirty] = useState(false);
   const [status, setStatus] = useState({ busy: null, message: '', error: false });
+  const [submissionId, setSubmissionId] = useState(null); // latest submission, shown in the run panel
+  const [target, setTarget] = useState(null); // round id to submit to; null for the open market
+  const targetTouched = useRef(false);
+  const { rounds } = useRounds();
+  const targets = joinableTargets(rounds);
+
+  // Default to the round you joined; fall back to the open market when that round is over
+  useEffect(() => {
+    const ids = targets.map((r) => r.roundId);
+    if (target !== null && !ids.includes(target)) setTarget(null);
+    else if (target === null && !targetTouched.current && ids.length > 0) setTarget(ids[0]);
+  }, [targets.map((r) => r.roundId).join(','), target]); // eslint-disable-line react-hooks/exhaustive-deps
   const codeRef = useRef('');
   const savedCodeRef = useRef('');
   const saveRef = useRef(null);
@@ -77,9 +88,7 @@ function CodeEditor({ accountId }) {
         codeRef.current = code;
         setDirty(code !== savedCodeRef.current);
         setInitialCode(code);
-        if (data.lastSubmission) {
-          setStatus({ busy: null, message: submissionMessage(data.lastSubmission), error: false });
-        }
+        if (data.lastSubmission) setSubmissionId(data.lastSubmission.strategySubmissionId);
       });
     return () => { cancelled = true; };
   }, [accountId]);
@@ -109,8 +118,12 @@ function CodeEditor({ accountId }) {
       : `No changes · v${data.version} is current`);
 
   const submit = () => run('submit',
-    (code) => api.post('/api/strategy/submit', { code }),
-    submissionMessage);
+    (code) => api.post('/api/strategy/submit', { code, roundId: target }),
+    (data) => {
+      setSubmissionId(data.strategySubmissionId);
+      const where = data.roundId ? ` to round #${data.roundId}` : '';
+      return `Submitted v${data.strategyVersion}${where} · ${formatTime(data.submittedAt)}`;
+    });
 
   // Monaco keybindings are registered once, so route them through a ref to the latest handler
   saveRef.current = status.busy ? null : save;
@@ -142,6 +155,21 @@ function CodeEditor({ accountId }) {
         <button className="code-editor-button" onClick={save} disabled={disabled} title="Save (⌘S / Ctrl+S)">
           {status.busy === 'save' ? 'Saving…' : 'Save'}
         </button>
+        <label className="run-target">
+          <span>Run in</span>
+          <select
+            value={target ?? ''}
+            onChange={(e) => { targetTouched.current = true; setTarget(e.target.value ? Number(e.target.value) : null); }}
+            disabled={disabled}
+          >
+            <option value="">Open market</option>
+            {targets.map((r) => (
+              <option key={r.roundId} value={r.roundId}>
+                Round #{r.roundId}{r.status === 'ACTIVE' ? ' (live)' : ' (next)'}
+              </option>
+            ))}
+          </select>
+        </label>
         <button className="code-editor-button primary" onClick={submit} disabled={disabled} title="Save and submit this strategy">
           {status.busy === 'submit' ? 'Submitting…' : 'Submit'}
         </button>
@@ -165,6 +193,7 @@ function CodeEditor({ accountId }) {
           />
         )}
       </div>
+      {submissionId !== null && <SubmissionPanel submissionId={submissionId} />}
     </div>
   );
 }
