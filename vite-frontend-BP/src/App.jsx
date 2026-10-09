@@ -7,7 +7,7 @@ import CompetitionPanel from './CompetitionPanel';
 import { RoundsProvider, formatCountdown, toDate, useRounds, useServerNow } from './rounds';
 import api from './api';
 
-const SYMBOLS = ["MEOW", "NEKO", "PAWS", "TUNA", "YARN"];
+const SYMBOLS = ["ACME", "GLBX", "KPWR", "NOVT", "ZBIO"];
 
 // Candle intervals in seconds
 const INTERVALS = [
@@ -91,7 +91,7 @@ function RoundChip() {
 }
 
 function Dashboard({ account, onSignOut }) {
-  const [selectedSymbol, setSelectedSymbol] = useState("MEOW");
+  const [selectedSymbol, setSelectedSymbol] = useState("ACME");
   const [intervalSeconds, setIntervalSeconds] = useState(60);
 
   return (
